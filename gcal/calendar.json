@@ -1,0 +1,21 @@
+{
+    "calendars": {
+        "active": {
+            "kevzheng@umich.edu": "kevzheng@umich.edu"
+        },
+        "inactive": {
+            "EECS 203 Office Hours": "umich.edu_vce8khehdt0r3te0b2ib8lpt24@group.calendar.google.com",
+            "Kevin Zheng Calendar (Canvas)": "uokl4fjp7rrjh0qorslfuen1rf0kkqf0@import.calendar.google.com",
+            "EECS 281 Lectures": "umich.edu_a660gf3tnv7c02l0aho1018gck@group.calendar.google.com",
+            "EECS 370 F17": "umich.edu_618h8tbrcq5rbflctbhvk6blu0@group.calendar.google.com",
+            "EECS 281 OH": "umich.edu_c8sngos30gjedcda3s9raemaqg@group.calendar.google.com",
+            "CROMA Lab Calendar": "umich.edu_mnm7k370d3odsdvtlart9214tk@group.calendar.google.com",
+            "MECC UMHS": "umich.edu_k46uc5rf719eu578mevlbnb054@group.calendar.google.com",
+            "MECC Consulting Group": "umich.edu_sjp3m8gd2j8099qo9vaf763m7s@group.calendar.google.com",
+            "EECS 281 Labs": "umich.edu_ao4lp5p6jhrc7ta8p14rae12os@group.calendar.google.com",
+            "Daily Sports": "q5n8lc6do7obpkbdnvda5sv6bo@group.calendar.google.com",
+            "Contacts": "#contacts@group.v.calendar.google.com",
+            "Holidays in United States": "en.usa#holiday@group.v.calendar.google.com"
+        }
+    }
+}
