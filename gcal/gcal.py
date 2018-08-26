@@ -143,7 +143,7 @@ def refresh_events(service, delta, calendarFile, outFile):
                 service.events().update(calendarId='primary', eventId=event['id'], body=event).execute()
 
             # Filter out 'Work' tags (for my personal calendar)
-            if event['summary'] != 'Work':
+            if event['summary'] != 'Work' and 'CC' not in event['summary']:
                 start = parse(event['start'].get('dateTime', event['start'].get('date')))
                 start_string = start.strftime("%I:%M %p").lstrip('0')
                 data['events'].append({'time':start_string,
@@ -222,7 +222,7 @@ def main():
 
     # Gets all calendars
     if(flags.events):
-        refresh_events(service, 48, os.path.join(os.getcwd(), 'gcal/calendar.json'), os.path.join(os.getcwd(), 'gcal/events.json'))
+        refresh_events(service, 144, os.path.join(os.getcwd(), 'gcal/calendar.json'), os.path.join(os.getcwd(), 'gcal/events.json'))
         update_colors(service)
 
     if(flags.add):

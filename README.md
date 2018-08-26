@@ -2,12 +2,14 @@
 
 My suite of hammerspoon extensions 😄 enjoy!
 
-## Installation
-Clone this repository into your .hammerspoon
+# Installation
+Clone the repository
+
 ```
-git clone https://github.com/kev-zheng/gcal-status
-cd gcal-status
+git clone https://github.com/kev-zheng/hammerspoon
 ```
+
+Move the contents into your .hammerspoon folder
 
 # init
 

@@ -28,10 +28,10 @@ end
 
 -- Initial dropdown before events
 -- Useful for setting bookmarks
-local dropdown = {}
-dropdown[1] = {title = "• Open Google Calendar ... ", fn=function() hs.urlevent.openURL("https://calendar.google.com") end}
-dropdown[2] = {title = "• Open Kanban Board ... ", fn=function() hs.urlevent.openURL("https://correlation-one.kanbantool.com/b/407711-technical-product") end}
-dropdown[3] = {title = "-"}
+local bookmarks = {}
+bookmarks[1] = {title = "• Open Google Calendar ... ", fn=function() hs.urlevent.openURL("https://calendar.google.com") end}
+bookmarks[2] = {title = "• Open Kanban Board ... ", fn=function() hs.urlevent.openURL("https://correlation-one.kanbantool.com/b/407711-technical-product") end}
+bookmarks[3] = {title = "-"}
 
 local menu = hs.menubar.new()
 
@@ -40,8 +40,14 @@ function refreshMenu()
     notify("Google Calendar", "Refreshing events ... ", nil, nil)
     
     -- Execute python script to fetch calendar events
-    os.execute(python_binary..cwd.."gcal/gcal.py -e")
+    os.execute(python_binary.." "..cwd.."gcal/gcal.py -e")
+
+    print(python_binary.." "..cwd.."gcal/gcal.py -e", nil, nil, nil)
+
     events = loadTable("gcal/events.json")['events']
+
+    -- Deep copy of bookmarks to build dropdown from
+    local dropdown = {table.unpack(bookmarks)}
 
     -- Set up dropdown
     if menu then
