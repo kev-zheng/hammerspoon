@@ -30,8 +30,11 @@ end
 -- Useful for setting bookmarks
 local bookmarks = {}
 bookmarks[1] = {title = "• Open Google Calendar ... ", fn=function() hs.urlevent.openURL("https://calendar.google.com") end}
-bookmarks[2] = {title = "• Open Kanban Board ... ", fn=function() hs.urlevent.openURL("https://correlation-one.kanbantool.com/b/407711-technical-product") end}
-bookmarks[3] = {title = "-"}
+bookmarks[2] = {title = "• Open Gmail ... ", fn=function() hs.urlevent.openURL("https://mail.google.com/mail/u/0/") end}
+bookmarks[3] = {title = "• Open Canvas ... ", fn=function() hs.urlevent.openURL("https://umich.instructure.com") end}
+bookmarks[4] = {title = "• Open C1 Kanban Board ... ", fn=function() hs.urlevent.openURL("https://correlation-one.kanbantool.com/b/407711-technical-product") end}
+bookmarks[5] = {title = "• Open LPHIE Budget ... ", fn=function() hs.urlevent.openURL("https://docs.google.com/spreadsheets/d/1fWxrycqZRtwdYrIXSnSVNplwdJxAN1PTWYnnWunBow0/edit#gid=1609903103") end}
+bookmarks[6] = {title = "-"}
 
 local menu = hs.menubar.new()
 

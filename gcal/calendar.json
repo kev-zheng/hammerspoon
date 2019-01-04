@@ -1,19 +1,27 @@
 {
     "calendars": {
         "active": {
-            "kevzheng@umich.edu": "kevzheng@umich.edu"
+            "EECS 381 Office Hours": "umich.edu_5vpnkgf0dqtjdhcb6n7s0fqu1o@group.calendar.google.com",
+            "PHYSICS 140": "umich.edu_tqod90e2l8a4ee8s7j484vo3fg@group.calendar.google.com",
+            "Correlation One": "umich.edu_4sqk9dukp191o59pqt1bs24n14@group.calendar.google.com"
         },
         "inactive": {
+            "lphie.xi.chapter.president@gmail.com": "lphie.xi.chapter.president@gmail.com",
             "EECS 203 Office Hours": "umich.edu_vce8khehdt0r3te0b2ib8lpt24@group.calendar.google.com",
             "Kevin Zheng Calendar (Canvas)": "uokl4fjp7rrjh0qorslfuen1rf0kkqf0@import.calendar.google.com",
             "EECS 281 Lectures": "umich.edu_a660gf3tnv7c02l0aho1018gck@group.calendar.google.com",
             "EECS 370 F17": "umich.edu_618h8tbrcq5rbflctbhvk6blu0@group.calendar.google.com",
             "EECS 281 OH": "umich.edu_c8sngos30gjedcda3s9raemaqg@group.calendar.google.com",
+            "MECC Digital Innovation Greenhouse": "umich.edu_obs8j71lqo4v09mgnaqhmpldpk@group.calendar.google.com",
+            "MECC Winter 2018 PMs": "umich.edu_vadlfc812r2ireqtgmf3te4mfs@group.calendar.google.com",
             "CROMA Lab Calendar": "umich.edu_mnm7k370d3odsdvtlart9214tk@group.calendar.google.com",
+            "EECS 482": "53spjk6ff90upmk9g1l0ohu2m4@group.calendar.google.com",
             "MECC UMHS": "umich.edu_k46uc5rf719eu578mevlbnb054@group.calendar.google.com",
             "MECC Consulting Group": "umich.edu_sjp3m8gd2j8099qo9vaf763m7s@group.calendar.google.com",
+            "MECC Correlation One Summer Project": "umich.edu_qfu5ngp379nis7bmsfjiquur8k@group.calendar.google.com",
             "EECS 281 Labs": "umich.edu_ao4lp5p6jhrc7ta8p14rae12os@group.calendar.google.com",
             "Daily Sports": "q5n8lc6do7obpkbdnvda5sv6bo@group.calendar.google.com",
+            "MATH 351 Office Hours": "umich.edu_7prhkca3egmmal6gotvrnfkm4s@group.calendar.google.com",
             "Contacts": "#contacts@group.v.calendar.google.com",
             "Holidays in United States": "en.usa#holiday@group.v.calendar.google.com"
         }

@@ -5,7 +5,7 @@ hypertab = {"ctrl", "alt", "cmd", "tab"}
 
 -- Home directory where lua code is stored
 cwd = os.getenv("HOME") .. "/.hammerspoon/"
-python_binary = "/Users/kevzheng/miniconda3/envs/gcal/bin/python"
+python_binary = "/Users/kevzheng/miniconda3/envs/gcal/bin/python3"
 
 
 inspect = require('inspect') -- Use for looking up tables

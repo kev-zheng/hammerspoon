@@ -32,6 +32,23 @@ SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'credentials.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
+def is_event_valid(event):
+    return 'dateTime' in event['start']
+
+def get_event_metadata(event, colors):
+    title = event['summary']
+    time = parse(event['start'].get('dateTime', event['start'].get('date')))
+    time = time.strftime("%I:%M %p").lstrip('0')
+
+    # Convert numerical colorId to hex code
+    try:
+        hexColor = colors['event'][event['colorId']]['background']
+    except KeyError:
+        # Default color - blue
+        hexColor = colors['event']['9']['background']
+
+    return {'title':title, 'time':time, 'color': hexColor} 
+
 def get_credentials():
     """Gets valid user credentials from storage.
 
@@ -90,7 +107,7 @@ def refresh_calendars(service, filename):
     calendar_list = service.calendarList().list().execute()
     # Loop through calendars, set active or inactive
     for item in calendar_list['items']:
-        active_flag = input(f"Activate (item['summary']) ? [y/N] ")
+        active_flag = input(f"Activate {item['summary']} ? [y/N] ")
         if(str.lower(active_flag) == 'y'):
             active[item['summary']] = item['id']
         else:
@@ -118,41 +135,28 @@ def refresh_events(service, delta, calendarFile, outFile):
 
     data = {'events':[]}
     calendar = json.load(open(calendarFile, 'r'))
+    calendar['calendars']['active']['primary'] = 'primary'
 
-    # Iterate over active calendars
-    for cal, cal_id in calendar['calendars']['active'].items():   
-        # Query for events
+    print(calendar['calendars']['active'].items())
+
+    events = []
+
+    for cal, cal_id in calendar['calendars']['active'].items():
         eventsResult = service.events().list(
-            calendarId=cal_id, timeMin=now, timeMax=maxTime, singleEvents=True,
-            orderBy='startTime').execute()
-        events = eventsResult.get('items', [])
-        if not events:
-            print('No upcoming events found.')
-        
-        for event in events:
-            # Convert numerical colorId to hex code
-            try:
-                hexColor = colors['event'][event['colorId']]['background']
-            except KeyError:
-                # Default color - blue
-                hexColor = colors['event']['9']['background']
-                colorId = 9
+            calendarId=cal_id, timeMin=now, timeMax=maxTime, singleEvents=True).execute()
+        events.extend(eventsResult.get('items', []))
 
-            if 'summary' not in event:
-                event['summary'] = 'Work'
-                service.events().update(calendarId='primary', eventId=event['id'], body=event).execute()
+    # filter events
+    events = [x for x in events if is_event_valid(x)]
 
-            # Filter out 'Work' tags (for my personal calendar)
-            if event['summary'] != 'Work' and 'CC' not in event['summary']:
-                start = parse(event['start'].get('dateTime', event['start'].get('date')))
-                start_string = start.strftime("%I:%M %p").lstrip('0')
-                data['events'].append({'time':start_string,
-                                       'title':event['summary'],
-                                       'color':hexColor})
+    # sort events by time
+    events.sort(key=lambda x: parse(x['start']['dateTime']))
+
+    events = {'events' : [get_event_metadata(x, colors) for x in events]}
 
     # Update event file
     with open(outFile, 'w') as jsonfile:
-        json.dump(data, jsonfile, indent=4)
+        json.dump(events, jsonfile, indent=4)
 
 def update_colors(service):
     """
@@ -177,13 +181,10 @@ def update_colors(service):
         orderBy='startTime').execute()
 
     for event in eventsResult['items']:
-        print(f"Updating color: {event['summary']}", end='\n')
-
         if 'colorId' not in event:
+            print(f"Updating color: {event['summary']}", end='\n')
             event['colorId'] = weekly_colors[current_week % len(weekly_colors)]
-
-        service.events().update(calendarId='primary', eventId=event['id'], body=event).execute()
-
+            service.events().update(calendarId='primary', eventId=event['id'], body=event).execute()
 
 def add_event(service, summary, start, end):
     event = {
@@ -205,6 +206,21 @@ def add_event(service, summary, start, end):
     event = service.events().insert(calendarId='primary', body=event).execute()
     print('Event created: %s' % (event.get('htmlLink')))
 
+def test(service):
+    page_token = None
+    while True:
+        calendar_list = service.calendarList().list(pageToken=page_token).execute()
+        for calendar_list_entry in calendar_list['items']:
+            print(calendar_list_entry['summary'])
+        page_token = calendar_list.get('nextPageToken')
+        if not page_token:
+            break
+    
+    
+    primary = service.calendar().list().execute()
+
+
+
 def main():
     """
     Creates a Google Calendar API service object
@@ -220,16 +236,19 @@ def main():
     if(flags.calendar):
         refresh_calendars(service, os.path.join(os.getcwd(), 'gcal/calendar.json'))
 
-    # Gets all calendars
+    # Gets all events
     if(flags.events):
-        refresh_events(service, 144, os.path.join(os.getcwd(), 'gcal/calendar.json'), os.path.join(os.getcwd(), 'gcal/events.json'))
+        refresh_events(service, 48, os.path.join(os.getcwd(), 'gcal/calendar.json'), os.path.join(os.getcwd(), 'gcal/events.json'))
         update_colors(service)
 
     if(flags.add):
         add_event(service)
 
     if(flags.test):
+        test(service)
         return
+
+
 
 
 if __name__ == '__main__':

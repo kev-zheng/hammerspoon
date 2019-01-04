@@ -10,6 +10,10 @@ hs.hotkey.bind(hyper, 'F', function ()
   hs.application.launchOrFocus('Finder')
 end)
 
+hs.hotkey.bind(hyper, "I", function ()
+  hs.application.launchOrFocus('Xcode')
+end)
+
 -- Activates Matlab only if running
 hs.hotkey.bind(hyper, 'M', function ()
   local matlab = hs.application.get('Matlab_R2017a')
