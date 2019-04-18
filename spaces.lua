@@ -1,140 +1,63 @@
--- Remove window movement animation
-hs.window.animationDuration = 0
+-- Code from https://github.com/Hammerspoon/hammerspoon/issues/235
+-- Make sure to install spaces module https://github.com/asmagill/hs._asm.undocumented.spaces
 
--- Hack to move window between spaces
-function moveWindowOneSpace(direction)
-  local mouseOrigin = hs.mouse.getAbsolutePosition()
-  local win = hs.window.frontmostWindow()
-  local clickPoint = win:zoomButtonRect()
+local hotkey = require "hs.hotkey"
+local window = require "hs.window"
+local spaces = require "hs._asm.undocumented.spaces" 
 
-  clickPoint.x = clickPoint.x + clickPoint.w + 3
-  clickPoint.y = clickPoint.y + (clickPoint.h / 2)
+function getGoodFocusedWindow(nofull)
+   local win = window.focusedWindow()
+   if not win or not win:isStandard() then return end
+   if nofull and win:isFullScreen() then return end
+   return win
+end 
 
-  local mouseClickEvent = hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseDown, clickPoint)
-  mouseClickEvent:post()
-  hs.timer.usleep(300000)
+function errorScreen(screen)
+  hs.sound.getByName("Funk"):play()
+end 
 
-  local nextSpaceDownEvent = hs.eventtap.event.newKeyEvent({"ctrl"}, direction, true)
-  nextSpaceDownEvent:post()
-  hs.timer.usleep(150000)
-
-  local nextSpaceUpEvent = hs.eventtap.event.newKeyEvent({"ctrl"}, direction, false)
-  nextSpaceUpEvent:post()
-  hs.timer.usleep(150000)
-
-  local mouseReleaseEvent = hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint)
-  mouseReleaseEvent:post()
-  hs.timer.usleep(150000)
-
-  hs.mouse.setAbsolutePosition(mouseOrigin)
+function switchSpace(skip,dir)
+   for i=1,skip do
+      hs.eventtap.keyStroke({"ctrl"},dir)
+   end 
 end
 
--- Store the original position of moved windows
-local origWindowPos = {}
-
--- cleanup original postition when window is restored or closed
-local function cleanupWindowPos(_,_,_,id)
-  origWindowPos[id] = nil
+function moveWindowOneSpace(dir,switch)
+   local win = getGoodFocusedWindow(true)
+   if not win then return end
+   local screen=win:screen()
+   local uuid=screen:spacesUUID()
+   local userSpaces=spaces.layout()[uuid]
+   local thisSpace=win:spaces() -- first space win appears on
+   if not thisSpace then return else thisSpace=thisSpace[1] end
+   local last=nil
+   local skipSpaces=0
+   for _, spc in ipairs(userSpaces) do
+      if spaces.spaceType(spc)~=spaces.types.user then -- skippable space
+	 skipSpaces=skipSpaces+1
+      else 			-- A good user space, check it
+	 if last and
+	    (dir=="left"  and spc==thisSpace) or
+	    (dir=="right" and last==thisSpace)
+	 then
+	    win:spacesMoveTo(dir=="left" and last or spc)
+	    if switch then
+	       switchSpace(skipSpaces+1,dir)
+	       win:focus()
+	    end
+	    return
+	 end
+	 last=spc	 -- Haven't found it yet...
+	 skipSpaces=0
+      end 
+   end
+   errorScreen(screen)   -- Shouldn't get here, so no space found
 end
 
-function getWindowState()
-  local win = hs.window.frontmostWindow()
-  local screen = win:screen():frame()
-  local f = win:frame()
-
-  state = "unknown"
-  if     f.x == screen.x and 
-         f.y == screen.y and 
-         f.w == screen.w and 
-         f.h == screen.h then
-    state = "full"
-  elseif f.x == screen.x and 
-         f.y == screen.y and 
-         f.w <= screen.w / 2 + 50 and f.w > screen.w / 2 - 50 and -- Some windows (terminal) don't resize exactly
-         f.h <= screen.h + 50 and f.h > screen.h - 50 then
-    state = "left"
-  elseif f.x == screen.x + screen.w / 2 and 
-         f.y == screen.y and 
-         f.w <= screen.w / 2 + 50 and f.w > screen.w / 2 - 50 and 
-         f.h <= screen.h + 50 and f.h > screen.h - 50 then
-    state = "right"
-  else
-    state = "other"
-  end
-
-  return state
-end
-
-function resizeWindow(desired)
-  local win = hs.window.frontmostWindow()
-  local screen = win:screen():frame()
-  local f = win:frame()
-  local id = win:id()
-
-  if desired == "full" then
-    f.x = screen.x
-    f.y = screen.y
-    win:setFrame(f)
-    f.w = screen.w
-    f.h = screen.h
-    win:setFrame(f)
-  elseif desired == "left" then
-    f.x = screen.x
-    f.y = screen.y
-    win:setFrame(f)
-    f.w = screen.w / 2
-    f.h = screen.h
-    win:setFrame(f)
-  elseif desired == "right" then
-    f.x = screen.x + screen.w / 2
-    f.y = screen.y
-    win:setFrame(f)
-    f.w = screen.w / 2
-    f.h = screen.h
-    win:setFrame(f)
-  elseif desired == "center" then
-    if origWindowPos[id] then
-      -- restore the windowT (there is a value for origWindowPos)
-      win:setFrame(origWindowPos[id])
-    else
-      f.x = screen.x + screen.w / 4
-      f.y = screen.y + screen.h / 4
-      win:setFrame(f)
-      f.w = screen.w / 2
-      f.h = screen.h / 2
-      win:setFrame(f)
-    end
-  end
-
-end
-
-function moveWindow(direction)
-  -- Check if there is a window present
-  local win = hs.window.focusedWindow()
-  if not win then return end
-
-  -- Select the focused window or if not focused the front window
-  win = hs.window.frontmostWindow()
-
-  local id = win:id()
-
-  position = getWindowState()
-
-  if not origWindowPos[id] then
-    -- add a watcher so we can clean the origWindowPos if the window is closed
-    local watcher = win:newWatcher(cleanupWindowPos, id)
-    watcher:start({hs.uielement.watcher.elementDestroyed})
-  end
-    moveWindowOneSpace(direction)
-end
-
-hs.hotkey.bind(hypershift, "h", function()
-  moveWindow("left")
-end)
-
-hs.hotkey.bind(hypershift, "l", function()
-  moveWindow("right")
-end)
+hotkey.bind(hypershift, "h", nil,
+	    function() moveWindowOneSpace("left", true) end)
+hotkey.bind(hypershift, "l",nil,
+	    function() moveWindowOneSpace("right", true) end)
 
 
 

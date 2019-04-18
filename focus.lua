@@ -1,3 +1,11 @@
+--[[
+
+focus.lua
+
+Set application bindings here!
+
+]]--
+
 hs.hotkey.bind(hyper, "C", function ()
   hs.application.launchOrFocus('Google Chrome')
 end)
@@ -12,12 +20,6 @@ end)
 
 hs.hotkey.bind(hyper, "I", function ()
   hs.application.launchOrFocus('Xcode')
-end)
-
--- Activates Matlab only if running
-hs.hotkey.bind(hyper, 'M', function ()
-  local matlab = hs.application.get('Matlab_R2017a')
-  matlab:activate()
 end)
 
 hs.hotkey.bind(hyper, 'N', function()
@@ -51,12 +53,3 @@ end)
 hs.hotkey.bind(hyper, 'H', function()
   hs.application.launchOrFocus('Hammerspoon')
 end)
-
-hs.hotkey.bind(hyper, "tab", function ()
-  hs.eventtap.keyStroke(nil, 'f3')  
-end)
-
--- hs.hotkey.bind(hyper, 'H', function() hs.window.focusedWindow():focusWindowWest() end)
--- hs.hotkey.bind(hyper, 'L', function() hs.window.focusedWindow():focusWindowEast() end)
--- hs.hotkey.bind(hyper, 'K', function() hs.window.focusedWindow():focusWindowNorth() end)
--- hs.hotkey.bind(hyper, 'J', function() hs.window.focusedWindow():focusWindowSouth() end)

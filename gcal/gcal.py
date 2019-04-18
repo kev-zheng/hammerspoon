@@ -22,7 +22,9 @@ try:
     parser.add_argument('-e', '--events', action='store_true')
     parser.add_argument('-a', '--add', action='store_true')
     parser.add_argument('-t', '--test', action='store_true')
+    parser.add_argument('-u', '--update_event', nargs=2)
     flags = parser.parse_args()
+    print(flags)
 except ImportError:
     flags = None
 
@@ -47,7 +49,15 @@ def get_event_metadata(event, colors):
         # Default color - blue
         hexColor = colors['event']['9']['background']
 
-    return {'title':title, 'time':time, 'color': hexColor} 
+    print(event)
+
+    return {
+        'title':title, 
+        'time':time,
+        'color': hexColor,
+        'colorId': event['colorId'] if 'colorId' in event else '9',
+        'id':event['id']
+        } 
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -152,11 +162,29 @@ def refresh_events(service, delta, calendarFile, outFile):
     # sort events by time
     events.sort(key=lambda x: parse(x['start']['dateTime']))
 
+    date_events = {}
+    for event in events:
+        date_obj = datetime.datetime.strptime(event['start']['dateTime'], "%Y-%m-%dT%H:%M:%S-04:00")
+        date_str = datetime.datetime.strftime(date_obj, "%A, %B %d")
+
+        event_meta = get_event_metadata(event, colors)
+
+        if date_str in date_events:
+            date_events[date_str].append(event_meta)
+        else:
+            date_events[date_str] = [event_meta]
+
+    # # convert datetime to dates
+    # dates = [datetime.datetime.strptime(x['start']['dateTime'], "%Y-%m-%dT%H:%M:%S-04:00") for x in events]
+    # dates = set([str(x.date()) for x in dates])
+
+    print(date_events)
+
     events = {'events' : [get_event_metadata(x, colors) for x in events]}
 
     # Update event file
     with open(outFile, 'w') as jsonfile:
-        json.dump(events, jsonfile, indent=4)
+        json.dump(date_events, jsonfile, indent=4)
 
 def update_colors(service):
     """
@@ -206,19 +234,22 @@ def add_event(service, summary, start, end):
     event = service.events().insert(calendarId='primary', body=event).execute()
     print('Event created: %s' % (event.get('htmlLink')))
 
-def test(service):
-    page_token = None
-    while True:
-        calendar_list = service.calendarList().list(pageToken=page_token).execute()
-        for calendar_list_entry in calendar_list['items']:
-            print(calendar_list_entry['summary'])
-        page_token = calendar_list.get('nextPageToken')
-        if not page_token:
-            break
-    
-    
-    primary = service.calendar().list().execute()
+def update_event(service, id, color):
+    event = service.events().get(calendarId='primary', eventId=id).execute()
+    event['colorId'] = color
+    service.events().update(calendarId='primary', eventId=id, body=event).execute()
 
+def test(service):
+    calendar_list = service.calendarList().list().execute()
+    out = { item['summary'] : item['id'] for item in calendar_list['items'] }
+    print(out)
+    with open('calendar_test.json', 'w') as outfile:
+        json.dump({'calendars' : out}, outfile, indent=4)
+    # for item in calendar_list['items']:
+    #     print(item['summary'])
+    #     print(item['id'])
+    #     print('\n')
+    # print(calendar_list)
 
 
 def main():
@@ -239,7 +270,9 @@ def main():
     # Gets all events
     if(flags.events):
         refresh_events(service, 48, os.path.join(os.getcwd(), 'gcal/calendar.json'), os.path.join(os.getcwd(), 'gcal/events.json'))
-        update_colors(service)
+
+    if(flags.update_event):
+        update_event(service, *flags.update_event)
 
     if(flags.add):
         add_event(service)
@@ -247,9 +280,6 @@ def main():
     if(flags.test):
         test(service)
         return
-
-
-
 
 if __name__ == '__main__':
     main()

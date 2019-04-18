@@ -29,11 +29,11 @@ function moveToScreen(nextScreen)
   end
 
 function moveWindowLeft()
-moveWindow(hs.screen.mainScreen():next())
+	moveWindow(hs.screen.mainScreen():next())
 end
 
 function moveWindowRight()
-moveWindow(hs.screen.mainScreen():previous())
+	moveWindow(hs.screen.mainScreen():previous())
 end
 
 hs.hotkey.bind(hypershift, "right", function () 

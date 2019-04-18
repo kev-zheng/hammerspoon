@@ -2,22 +2,24 @@
 
 timer.lua
 
-A simple timer that is displayed on the status bar,
-triggered with a url event.
+A simple timer that is displayed on the status bar :)
 
 ]]--
 
 require("notify")
 
-notif_title = "Tomato Timer"
-shui_icon = hs.image.imageFromPath('~/.hammerspoon/assets/shui.png')
-time = 0
+local NOTIFICATION_TITLE = "Tomato Timer"
+local NOTIFICATION_IMAGE = hs.image.imageFromPath('~/.hammerspoon/assets/shui.png')
+local EVENING_IN_SEC = 64800
 
-clock_idx = 1
+local menu = hs.menubar.new()
+local clock_idx = 1
+local time = 0
 
-clocks = {"🕛","🕐","🕑","🕒","🕓","🕔","🕕","🕖","🕗","🕘","🕙","🕚"}
+-- Function declarations
+local updateTimer, resume, pause, cancel, begin, initTimer
 
-local function updateTimer()
+updateTimer = function()
 	local min = time // 60
 	local sec = time % 60
 	local disp = string.format ("%s %02d:%02d ", clocks[clock_idx], min, sec)
@@ -30,28 +32,28 @@ local function updateTimer()
 	
 	if time == 0 then
 		cancel()
-		notify(notif_title, "Time's up!", shui_icon, true)
+		notify(NOTIFICATION_TITLE, "Time's up!", NOTIFICATION_IMAGE, true)
 	end
 end
 
-function resume()
+resume = function()
 	watch:start()
 	menu:setMenu({{title="Pause", fn=pause}, {title="Cancel", fn=cancel}})
 end
 
-function pause()
+pause = function()
 	watch:stop()
 	menu:setMenu({{title="Resume", fn=resume}, {title="Cancel", fn=cancel}})
 end
 
-function cancel()
+cancel = function()
 	watch:stop()
 	time = nil
-	startTimer()
+	initTimer()
 end
 
-function begin()
-	notify(notif_title, "Starting timer!", shui_icon)
+begin = function()
+	notify(NOTIFICATION_TITLE, "Starting timer!", NOTIFICATION_IMAGE)
 
 	time = 25 * 60
 
@@ -64,14 +66,11 @@ function begin()
 	watch:start()
 end
 
-function startTimer()
-	if menu == nil then
-		menu = hs.menubar.new()
-	end
+initTimer = function()
 
 	clocks = {"🕛","🕐","🕑","🕒","🕓","🕔","🕕","🕖","🕗","🕘","🕙","🕚"}
 
-	if hs.timer.localTime() > (0) then
+	if hs.timer.localTime() > EVENING_IN_SEC then
 		clocks = {"🌒","🌓","🌔","🌝","🌖","🌗","🌘","🌚"}
 	end
 
@@ -79,4 +78,4 @@ function startTimer()
 	menu:setMenu({{title="Start", fn=begin}})
 end
 
-startTimer()
+initTimer()

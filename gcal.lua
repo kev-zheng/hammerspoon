@@ -1,9 +1,24 @@
+--[[
+
+focus.lua
+
+Set application bindings here!
+
+]]--
+
 local Json = require("json")
 require("table")
 require("notify")
 
+local FLAGS_bookmark_path = "bookmarks/bookmarks.json"
+local FLAGS_completed_colorId = "10"
+local FLAGS_completed_color = "#51b749"
+
+local FLAGS_incomplete_colorId = "4"
+local FLAGS_incomplete_color = "#ff887c"
+
 -- Function to load a json file into table
-function loadTable(filename)
+local function loadTable(filename)
     local contents = ""
     local myTable = {}
     local file = io.open( cwd..filename, "r" )
@@ -18,54 +33,94 @@ function loadTable(filename)
     return nil
 end
 
-function clickMenu()
-    -- noop for now
+local function loadBookmarks()
+    local out = {}
+    local bookmarks = loadTable(FLAGS_bookmark_path)['bookmarks']
+    for k, v in pairs(bookmarks) do
+        out[#out + 1] = {title = "Open "..v['title'].."...", fn=function() hs.urlevent.openURL(v['url']) end}
+    end
+    return out
 end
 
-function makeDot(hex_color)
-    return hs.styledtext.new("•", {color = { hex = hex_color}})..hs.styledtext.new(" ", {color = { hex = "#1d1d1d"}})
+local function refreshMenuTitle(menu, menu_table)
+    menu:setMenu(menu_table)
+    menu_title = "No tasks found!"
+    for k,v in pairs(menu_table) do
+        if not v['checked'] and v['summary'] then
+            menu_title = v['time'].." - "..v['summary']
+            break
+        end
+    end
+    menu:setTitle(menu_title)
 end
 
--- Initial dropdown before events
--- Useful for setting bookmarks
-local bookmarks = {}
-bookmarks[1] = {title = "• Open Google Calendar ... ", fn=function() hs.urlevent.openURL("https://calendar.google.com") end}
-bookmarks[2] = {title = "• Open Gmail ... ", fn=function() hs.urlevent.openURL("https://mail.google.com/mail/u/0/") end}
-bookmarks[3] = {title = "• Open Canvas ... ", fn=function() hs.urlevent.openURL("https://umich.instructure.com") end}
-bookmarks[4] = {title = "• Open C1 Kanban Board ... ", fn=function() hs.urlevent.openURL("https://correlation-one.kanbantool.com/b/407711-technical-product") end}
-bookmarks[5] = {title = "• Open LPHIE Budget ... ", fn=function() hs.urlevent.openURL("https://docs.google.com/spreadsheets/d/1fWxrycqZRtwdYrIXSnSVNplwdJxAN1PTWYnnWunBow0/edit#gid=1609903103") end}
-bookmarks[6] = {title = "-"}
+local function makeDot(hex_color)
+    return hs.styledtext.new("●", {color = { hex = hex_color}, font = { size = 11 }})..hs.styledtext.new(" ", hs.styledtext.defaultFonts.menu)
+end
+
+local function makeTitle(color, time, title)
+    return makeDot(color)..time.." - "..title
+end
+
+local function updateEvent(menu, menu_table, event)
+    if event['checked'] then
+        -- reset to original color
+        event['checked'] = false
+        event['title'] = makeTitle(FLAGS_incomplete_color, event['time'], event['summary'])
+        os.execute(PYTHON_BINARY.." "..cwd.."gcal/gcal.py -u "..event['id'].." "..FLAGS_incomplete_colorId)
+    else
+        -- set to completed color
+        event['checked'] = true
+        event['title'] = makeTitle(FLAGS_completed_color, event['time'], event['summary'])
+        os.execute(PYTHON_BINARY.." "..cwd.."gcal/gcal.py -u "..event['id'].." "..FLAGS_completed_colorId)
+        -- set color to something good
+    end
+    refreshMenuTitle(menu, menu_table)
+end
 
 local menu = hs.menubar.new()
+local menu_table = {}
 
 -- Refreshes events and sets menu to first event
-function refreshMenu()
-    notify("Google Calendar", "Refreshing events ... ", nil, nil)
-    
+local function refreshMenu()
+    if not menu then
+        return
+    end
+
+    -- clear the menu
+    menu_table = {}
+
     -- Execute python script to fetch calendar events
-    os.execute(python_binary.." "..cwd.."gcal/gcal.py -e")
+    notify("Google Calendar", "Refreshing events ... ", nil, nil)
+    os.execute(PYTHON_BINARY.." "..cwd.."gcal/gcal.py -e")
+    print(PYTHON_BINARY.." "..cwd.."gcal/gcal.py -e", nil, nil, nil)
 
-    print(python_binary.." "..cwd.."gcal/gcal.py -e", nil, nil, nil)
+    -- attach bookmarks
+    bookmark_menu = loadBookmarks()
+    for k, v in pairs(bookmark_menu) do
+        menu_table[#menu_table + 1] = v
+    end
 
-    events = loadTable("gcal/events.json")['events']
-
-    -- Deep copy of bookmarks to build dropdown from
-    local dropdown = {table.unpack(bookmarks)}
-
-    -- Set up dropdown
-    if menu then
-        for k, v in pairs(events) do
-            dropdown[#dropdown + 1] = {title = makeDot(v['color'])..v['time'].." - "..v['title'], fn=clickMenu}
+    events = loadTable("gcal/events.json")
+    for date, event_list in pairs(events) do
+        menu_table[#menu_table + 1] = {title="-"}
+        menu_table[#menu_table + 1] = {title=date}
+        menu_table[#menu_table + 1] = {title="-"}
+        for k,v in pairs(event_list) do
+            local event = {
+                title = makeTitle(v['color'], v['time'], v['title']),
+                color=v['color'],
+                colorId = v['colorId'],
+                checked=v['colorId'] == '10',
+                time=v['time'],
+                summary=v['title'],
+                id = v['id'],
+            }
+            event['fn'] = function() updateEvent(menu, menu_table, event) end
+            menu_table[#menu_table + 1] = event
         end
-
-        menu:setMenu(dropdown)
-
-        if #events > 0 then
-            menu:setTitle(events[1]['time'].." - "..events[1]['title'])
-        else
-            menu:setTitle("No events found!")
-        end
-    end 
+    end
+    refreshMenuTitle(menu, menu_table)
 end
 
 -- First call initializes menu
@@ -76,3 +131,4 @@ timer = hs.timer.doEvery(3600, refreshMenu)
 
 -- Binds hotkey to refresh menu
 hs.hotkey.bind(hyper, "-", refreshMenu)
+
