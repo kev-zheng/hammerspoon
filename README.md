@@ -75,6 +75,17 @@ Repeated presses of `hyper + enter` will cycle through resizing similarly.
 
 # spaces
 
+Hammerspoon spaces is currently experimental. Install by:
+
+Clone this repo in your ~/.hammerspoon
+```
+https://github.com/asmagill/hs._asm.undocumented.spaces spaces
+```
+
+Run `make install`
+
+## Usage
+
 `Hyper + shift + h` moves current window left
 `Hyper + shift + l` moves current window right
 
