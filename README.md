@@ -3,15 +3,22 @@
 A suite of hammerspoon extensions
 
 # Installation
-Install [hammerspoon](https://www.hammerspoon.org/)
+Install [Hammerspoon](https://www.hammerspoon.org/)
 
 Install [Karabiner-Elements](https://pqrs.org/osx/karabiner/)
 
-Make sure to enable accessibility for these apps!
+Go to System Preferences -> Security & Privacy -> Privacy and add both
+Hammerspoon and Karabiner-Elements in the Accessibility tab
 
 Clone this repository into ~/.hammerspoon/
 
 Move the karabiner.json file into ~/.config/karabiner/
+
+# Usage
+
+By default, the karabiner.json file turns your caps-lock key into a "hyper"
+key, which are the keys `ctrl + option + command`. Pressing caps by itself will
+also post `escape`.
 
 # Modules
 
@@ -24,16 +31,23 @@ menubar extension to interact with __Google Calendar__ events
 **Installation**
 
 1. Make sure you have python3 installed
+
 2. Install python packages
 
 ```
 pip3 install --upgrade google-api-python-client oauth2client python-dateutil httplib2
 ``` 
 
-3. Set PYTHON_BINARY to your python3 binary (run "which python") in init.lua
+3. Set PYTHON_BINARY in init.lua to the output of `which python3`
 
-4. Run gcal/gcal.py -c to set up your active calendars
-You'll need to login to google calendar... move the credentials.json file into /gcal
+4. Go to [Google Calendar Python
+   Quickstart](https://developers.google.com/calendar/quickstart/python) and
+   `Enable the Google Calendar API`
+
+5. Download the credentials.json file and save it in the `gcal` folder
+
+6. Run `python3 gcal/gcal.py -e` which should prompt you to log into your
+   Google account
 
 Other goodies...
 
