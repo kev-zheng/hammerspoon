@@ -7,6 +7,8 @@ Install [hammerspoon](https://www.hammerspoon.org/)
 
 Install [Karabiner-Elements](https://pqrs.org/osx/karabiner/)
 
+Make sure to enable accessibility for these apps!
+
 Clone this repository into ~/.hammerspoon/
 
 Move the karabiner.json file into ~/.config/karabiner/
@@ -25,7 +27,7 @@ menubar extension to interact with __Google Calendar__ events
 2. Install python packages
 
 ```
-pip3 install --upgrade google-api-python-client oauth2client python-dateutil
+pip3 install --upgrade google-api-python-client oauth2client python-dateutil httplib2
 ``` 
 
 3. Set PYTHON_BINARY to your python3 binary (run "which python") in init.lua
