@@ -1,65 +1,43 @@
 # Hammerspoon
 
-My suite of hammerspoon extensions 😄 enjoy!
+A suite of hammerspoon extensions
 
 # Installation
-Clone the repository
+Install [hammerspoon](https://www.hammerspoon.org/)
+Install [Karabiner-Elements](https://pqrs.org/osx/karabiner/)
 
-```
-git clone https://github.com/kev-zheng/hammerspoon
-```
+Clone this repository into ~/.hammerspoon/
+Move the karabiner.json file into ~/.config/karabiner/
 
-Move the contents into your .hammerspoon folder
+# Modules
 
-# init
-
-File wrapping all of the lua files together. Each module is configured here. Global variables, such as set hyper-keys, are also set here.
-
-I use [karabiner-elements](https://pqrs.org/osx/karabiner/) to convert my `caps lock` key into a hyperkey, which automatically presses `ctrl + alt + cmd` for me. 
-
-The majority of my keybindings use the hyperkey in combination with other keys.
-
-# gcal
+## gcal
 
 menubar extension to interact with __Google Calendar__ events
 
-## gcal.py
+![alt text](assets/gcal-preview.png)
 
-Script used to refresh google calendar events. Requires authentication via Google Calendar API.
+**Installation**
 
-Install these dependencies to be able to run the script:
+1. Make sure you have python3 installed
+2. Install python packages
 
 ```
-pip install --upgrade google-api-python-client oauth2client python-dateutil
-```
+pip3 install --upgrade google-api-python-client oauth2client python-dateutil
+``` 
 
-Follow instructions at [Google Calendar Python API Quickstart](https://developers.google.com/calendar/quickstart/python) to run quickstart.py to initialize your crendentials, or directly run gcal.py
+3. Set PYTHON_BINARY to your python3 binary (run "which python") in init.lua
 
-You should have a credentials.json file in the working directory or in home .credentials directory
+4. Run gcal/gcal.py -c to set up your active calendars
+You'll need to login to google calendar... move the credentials.json file into /gcal
 
-`calendar.json` contains the activated calendars where events are pulled from.
+Other goodies...
 
-Run the following to set up your active calendars
-```
-python3 gcal.py -c
-```
-
-`events.json` contains the events displayed in your menubar.
-
-The following command pulls latest events corresponding to your active calendars
-```
-python3 gcal.py -e
-```
-
-`colors.json` are helpful color mappings. `gcal.py` updates your default-colored events to a new color every week to keep them fresh!
-
-## gcal.lua
-
-Constructs the menubar. On each refresh, calls `gcal.py -e` and updates the menubar with events in `events.json`
+Bookmarks: Set up your bookmarks in bookmarks/bookmarks.json
 
 # focus
 
-File containing hotkey bindings. Each segment binds a hotkey to a useful application - such as `hyper + c` to launch `Google Chrome`
+Hyperkey + key to open or focus applications
 
 # monitor
 
@@ -91,6 +69,11 @@ Repeated presses of above keys will cycle window to take up half, quarter, and 2
 
 Repeated presses of `hyper + enter` will cycle through resizing similarly.
 
+# spaces
+
+`Hyper + shift + h` moves current window left
+`Hyper + shift + l` moves current window right
+
 # timer
 
-Simple `pomodoro timer` activated through the menubar. Uses a 25-minute work duration.
+Pomodoro timer activated through the menubar. Uses a 25-minute work duration.
