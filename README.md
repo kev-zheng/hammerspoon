@@ -8,6 +8,7 @@ Install [hammerspoon](https://www.hammerspoon.org/)
 Install [Karabiner-Elements](https://pqrs.org/osx/karabiner/)
 
 Clone this repository into ~/.hammerspoon/
+
 Move the karabiner.json file into ~/.config/karabiner/
 
 # Modules
