@@ -19,6 +19,7 @@ require('monitor')
 require('notify')
 require('timer')
 require('spaces')
+require('airpods')
 
 --require('watcher') -- Use when developing
 --To get names of applications

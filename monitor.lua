@@ -1,4 +1,4 @@
-function moveToScreen(nextScreen)
+local function moveToScreen(nextScreen)
 	local currentScreen = hs.screen.mainScreen()
 	local currentFrame = currentScreen:frame()
 
@@ -27,14 +27,6 @@ function moveToScreen(nextScreen)
 	hs.eventtap.leftClick(clickPoint)
 	
   end
-
-function moveWindowLeft()
-	moveWindow(hs.screen.mainScreen():next())
-end
-
-function moveWindowRight()
-	moveWindow(hs.screen.mainScreen():previous())
-end
 
 hs.hotkey.bind(hypershift, "right", function () 
 	moveToScreen(hs.screen.mainScreen():next())
