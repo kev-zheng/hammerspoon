@@ -13,8 +13,6 @@ import datetime
 from dateutil.parser import parse
 import json
 
-weekly_colors = ['4', '6', '5', '2', '7', '1']
-
 try:
     import argparse
     parser = argparse.ArgumentParser(parents=[tools.argparser])
@@ -214,6 +212,15 @@ def update_colors(service):
             event['colorId'] = weekly_colors[current_week % len(weekly_colors)]
             service.events().update(calendarId='primary', eventId=event['id'], body=event).execute()
 
+"""
+Test functions begin
+"""
+
+def update_event(service, id, color):
+    event = service.events().get(calendarId='primary', eventId=id).execute()
+    event['colorId'] = color
+    service.events().update(calendarId='primary', eventId=id, body=event).execute()
+
 def add_event(service, summary, start, end):
     event = {
         'summary': f'Google I/O 2015',
@@ -234,11 +241,6 @@ def add_event(service, summary, start, end):
     event = service.events().insert(calendarId='primary', body=event).execute()
     print('Event created: %s' % (event.get('htmlLink')))
 
-def update_event(service, id, color):
-    event = service.events().get(calendarId='primary', eventId=id).execute()
-    event['colorId'] = color
-    service.events().update(calendarId='primary', eventId=id, body=event).execute()
-
 def test(service):
     calendar_list = service.calendarList().list().execute()
     out = { item['summary'] : item['id'] for item in calendar_list['items'] }
@@ -251,6 +253,10 @@ def test(service):
     #     print('\n')
     # print(calendar_list)
 
+
+"""
+Test functions end
+"""
 
 def main():
     """
