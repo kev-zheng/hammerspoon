@@ -5,24 +5,24 @@ local hotkey = require "hs.hotkey"
 local window = require "hs.window"
 local spaces = require "hs._asm.undocumented.spaces" 
 
-function getGoodFocusedWindow(nofull)
+local function getGoodFocusedWindow(nofull)
    local win = window.focusedWindow()
    if not win or not win:isStandard() then return end
    if nofull and win:isFullScreen() then return end
    return win
 end 
 
-function errorScreen(screen)
+local function errorScreen(screen)
   hs.sound.getByName("Funk"):play()
 end 
 
-function switchSpace(skip,dir)
-   for i=1,skip do
-      hs.eventtap.keyStroke({"ctrl"},dir)
-   end 
-end
+-- function switchSpace(skip,dir)
+--    for i=1,skip do
+--       hs.eventtap.keyStroke({"ctrl"},dir)
+--    end 
+-- end
 
-function moveWindowOneSpace(dir,switch)
+local function moveWindowOneSpace(dir,switch)
    local win = getGoodFocusedWindow(true)
    if not win then return end
    local screen=win:screen()
@@ -42,7 +42,7 @@ function moveWindowOneSpace(dir,switch)
 	 then
 	    win:spacesMoveTo(dir=="left" and last or spc)
 	    if switch then
-	       switchSpace(skipSpaces+1,dir)
+         --  switchSpace(skipSpaces+1,dir)
 	       win:focus()
 	    end
 	    return
@@ -58,6 +58,3 @@ hotkey.bind(hypershift, "h", nil,
 	    function() moveWindowOneSpace("left", true) end)
 hotkey.bind(hypershift, "l",nil,
 	    function() moveWindowOneSpace("right", true) end)
-
-
-
