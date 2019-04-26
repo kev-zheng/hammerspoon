@@ -35,4 +35,22 @@ end)
 hs.hotkey.bind(hypershift, "left", function () 
 	moveToScreen(hs.screen.mainScreen():previous())
 end)
-  
+
+-- Using coredock for re-orientation
+coredock = require("hs._asm.undocumented.coredock")
+
+local DOCK_ORIENTATION_LEFT = 3
+local DOCK_ORIENTATION_BOTTOM = 2
+
+local function toggleDock()
+	local num_screens = #hs.screen.allScreens()
+	if num_screens == 1 then
+		coredock.orientation(DOCK_ORIENTATION_LEFT)
+	else
+		coredock.orientation(DOCK_ORIENTATION_BOTTOM)
+	end
+end
+
+toggleDock()
+screen_watcher = hs.screen.watcher.new(toggleDock)
+screen_watcher:start()
