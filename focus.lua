@@ -46,10 +46,37 @@ hs.hotkey.bind(hyper, "W", function ()
   hs.application.launchOrFocus('Wechat')
 end)
 
-hs.hotkey.bind(hyper, "space", function ()
-  hs.application.launchOrFocus('Terminal')
-end)
-
 hs.hotkey.bind(hyper, 'H', function()
   hs.application.launchOrFocus('Hammerspoon')
+end)
+
+
+-- Workaround for Alacritty app
+-- 
+-- Searches current space for the app, then saves the window
+-- if a window wasn't found, use the saved window, or default
+-- to launchOrFocus()
+
+local spaces = require "hs._asm.undocumented.spaces"
+cached_win = nil
+
+hs.hotkey.bind(hyper, "space", function ()
+  windows = spaces.allWindowsForSpace(spaces.activeSpace())
+  
+  alacritty_win = nil
+  for k,v in pairs(windows) do
+    if v:application():name() == 'Alacritty' then
+      alacritty_win = v
+    end
+  end
+
+  if alacritty_win ~= nil then
+    cached_win = alacritty_win:focus()
+  elseif cached_win ~= nil then
+    cached_win:focus()
+  end
+
+  if cached_win == nil then
+    hs.application.launchOrFocus('/Applications/Alacritty.app')
+  end
 end)
