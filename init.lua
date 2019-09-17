@@ -8,7 +8,7 @@ hypertab = {"ctrl", "alt", "cmd", "tab"}
 cwd = os.getenv("HOME") .. "/.hammerspoon/"
 
 -- Path of your python3 executable
-PYTHON_BINARY = "/Users/kevzheng/miniconda3/envs/gcal/bin/python3"
+PYTHON_BINARY = "/usr/local/bin/python3"
 
 -- Toggle modules here
 inspect = require('inspect')
