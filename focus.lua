@@ -50,33 +50,47 @@ hs.hotkey.bind(hyper, 'H', function()
   hs.application.launchOrFocus('Hammerspoon')
 end)
 
+hs.hotkey.bind(hyper,  "space", function()
+  hs.application.launchOrFocus('Terminal')
+end)
+
 
 -- Workaround for Alacritty app
 -- 
 -- Searches current space for the app, then saves the window
 -- if a window wasn't found, use the saved window, or default
 -- to launchOrFocus()
-
-local spaces = require "hs._asm.undocumented.spaces"
-cached_win = nil
-
-hs.hotkey.bind(hyper, "space", function ()
-  windows = spaces.allWindowsForSpace(spaces.activeSpace())
-  
-  alacritty_win = nil
-  for k,v in pairs(windows) do
-    if v:application():name() == 'Alacritty' then
-      alacritty_win = v
-    end
-  end
-
-  if alacritty_win ~= nil then
-    cached_win = alacritty_win:focus()
-  elseif cached_win ~= nil then
-    cached_win:focus()
-  end
-
-  if cached_win == nil then
-    hs.application.launchOrFocus('/Applications/Alacritty.app')
-  end
-end)
+--
+--local spaces = require "hs._asm.undocumented.spaces"
+--local unit_window = hs.geometry.size(0.0, 0.0)
+--cached_win = nil
+--
+--hs.hotkey.bind(hyper, "space", function ()
+-- 
+--  -- Focus cached window
+--  if cached_win ~= nil and cached_win:size() ~= unit_window then
+--    print("focusing cached window")
+--    cached_win:focus()
+--    return
+--  end
+--
+--  windows = spaces.allWindowsForSpace(spaces.activeSpace())
+--
+--  alacritty_win = nil
+--  for k,v in pairs(windows) do
+--    if v:application():name() == 'Alacritty' then
+--      alacritty_win = v
+--    end
+--  end
+--
+--  -- Focus the searched window
+--  if alacritty_win ~= nil then
+--    print("focusing searched window")
+--    cached_win = alacritty_win:focus()
+--    return
+--  end
+--
+--  -- Attempts failed, launch the app
+--  print("launchOrFocus app")
+--  hs.application.launchOrFocus('/Applications/Alacritty.app')
+--end)
