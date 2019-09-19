@@ -8,7 +8,7 @@ Set application bindings here!
 
 local Json = require("json")
 require("table")
-require("notify")
+require("notify")l
 
 local FLAGS_bookmark_path = "bookmarks/bookmarks.json"
 local FLAGS_completed_colorId = "10"
@@ -16,6 +16,30 @@ local FLAGS_completed_color = "#51b749"
 
 local FLAGS_incomplete_colorId = "4"
 local FLAGS_incomplete_color = "#ff887c"
+
+-- Iterate over a table in sorted order
+function spairs(t, order)
+    -- collect the keys
+    local keys = {}
+    for k in pairs(t) do keys[#keys+1] = k end
+
+    -- if order function given, sort by it by passing the table and keys a, b,
+    -- otherwise just sort the keys 
+    if order then
+        table.sort(keys, function(a,b) return order(t, a, b) end)
+    else
+        table.sort(keys)
+    end
+
+    -- return the iterator function
+    local i = 0
+    return function()
+        i = i + 1
+        if keys[i] then
+            return keys[i], t[keys[i]]
+        end
+    end
+end
 
 -- Function to load a json file into table
 local function loadTable(filename)
@@ -102,7 +126,11 @@ local function refreshMenu()
     end
 
     events = loadTable("gcal/events.json")
-    for date, event_list in pairs(events) do
+    for _, date_events in spairs(events) do
+        date = date_events["date"]
+        event_list = date_events["events"]
+
+        -- Construct title menu
         menu_table[#menu_table + 1] = {title="-"}
         menu_table[#menu_table + 1] = {title=date}
         menu_table[#menu_table + 1] = {title="-"}

@@ -9,7 +9,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-import datetime
+from datetime import datetime, timedelta, time
 from dateutil.parser import parse
 import json
 
@@ -36,6 +36,9 @@ def is_event_valid(event):
     return 'dateTime' in event['start']
 
 def get_event_metadata(event, colors):
+    date_obj = datetime.strptime(event['start']['dateTime'], "%Y-%m-%dT%H:%M:%S-04:00")
+    date_str = datetime.strftime(date_obj, "%A, %B %d")
+
     title = event['summary']
     time = parse(event['start'].get('dateTime', event['start'].get('date')))
     time = time.strftime("%I:%M %p").lstrip('0')
@@ -50,6 +53,7 @@ def get_event_metadata(event, colors):
     print(event)
 
     return {
+        'date_str': date_str,
         'title':title, 
         'time':time,
         'color': hexColor,
@@ -128,8 +132,8 @@ def refresh_calendars(service, filename):
     with open(filename, 'w') as jsonfile:
         json.dump(data, jsonfile, indent=4)
 
-def refresh_events(service, delta, calendarFile, outFile):
-    """Fetches all events in the next (delta) hours from active calendars,
+def refresh_events(service, pdelta, ndelta, calendarFile, outFile):
+    """Fetches all events from previous (pdelta) to next (ndelta) hours from active calendars,
     then updates the events file
     """
     print('Refreshing events...')
@@ -137,9 +141,19 @@ def refresh_events(service, delta, calendarFile, outFile):
     # Color information
     colors = get_colors(service, os.path.join(os.getcwd(), 'gcal/colors.json'))
 
+    # Get time range from [yesterday, tomorrow)
+    start = datetime.combine(datetime.today() - timedelta(days=1), time())
+    end = start + timedelta(days=3)
+
+    # Convert to google calendar API expected format
+    start = start.isoformat() + 'Z'
+    end = end.isoformat() + 'Z'
+
     # Calculating time deltas
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    maxTime = (datetime.datetime.utcnow() + datetime.timedelta(hours=delta)).isoformat() + 'Z'
+    #start = (datetime.utcnow() - timedelta(hours=pdelta)).isoformat() + 'Z'
+    #end = (datetime.utcnow() + timedelta(hours=ndelta)).isoformat() + 'Z'
+
+    print(start)
 
     data = {'events':[]}
     calendar = json.load(open(calendarFile, 'r'))
@@ -151,7 +165,7 @@ def refresh_events(service, delta, calendarFile, outFile):
 
     for cal, cal_id in calendar['calendars']['active'].items():
         eventsResult = service.events().list(
-            calendarId=cal_id, timeMin=now, timeMax=maxTime, singleEvents=True).execute()
+            calendarId=cal_id, timeMin=start, timeMax=end, singleEvents=True).execute()
         events.extend(eventsResult.get('items', []))
 
     # filter events
@@ -162,23 +176,18 @@ def refresh_events(service, delta, calendarFile, outFile):
 
     date_events = {}
     for event in events:
-        date_obj = datetime.datetime.strptime(event['start']['dateTime'], "%Y-%m-%dT%H:%M:%S-04:00")
-        date_str = datetime.datetime.strftime(date_obj, "%A, %B %d")
-
         event_meta = get_event_metadata(event, colors)
-
+        date_str = event_meta['date_str']
         if date_str in date_events:
-            date_events[date_str].append(event_meta)
+            date_events[date_str]["events"].append(event_meta)
         else:
-            date_events[date_str] = [event_meta]
+            date_events[date_str] = {"date": date_str, "events": [event_meta]}
 
-    # # convert datetime to dates
-    # dates = [datetime.datetime.strptime(x['start']['dateTime'], "%Y-%m-%dT%H:%M:%S-04:00") for x in events]
-    # dates = set([str(x.date()) for x in dates])
+    # convert keys to ordered integers
+    ikeys = list(range(len(date_events)))
+    date_events = dict(zip(ikeys, date_events.values()))
 
     print(date_events)
-
-    events = {'events' : [get_event_metadata(x, colors) for x in events]}
 
     # Update event file
     with open(outFile, 'w') as jsonfile:
@@ -192,10 +201,10 @@ def update_colors(service):
     Color of the week is current_week % len(weekly_colors)
     """
 
-    current_week = int(datetime.datetime.today().strftime("%V"))
+    current_week = int(datetime.today().strftime("%V"))
 
     # Calculating time deltas
-    current = datetime.datetime.today()
+    current = datetime.today()
     start = current - datetime.timedelta(days=current.weekday())
     end = start + datetime.timedelta(days=6)
 
@@ -275,7 +284,7 @@ def main():
 
     # Gets all events
     if(flags.events):
-        refresh_events(service, 48, os.path.join(os.getcwd(), 'gcal/calendar.json'), os.path.join(os.getcwd(), 'gcal/events.json'))
+        refresh_events(service, 48, 48, os.path.join(os.getcwd(), 'gcal/calendar.json'), os.path.join(os.getcwd(), 'gcal/events.json'))
 
     if(flags.update_event):
         update_event(service, *flags.update_event)
