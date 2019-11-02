@@ -8,7 +8,7 @@ Set application bindings here!
 
 local Json = require("json")
 require("table")
-require("notify")l
+require("notify")
 
 local FLAGS_bookmark_path = "bookmarks/bookmarks.json"
 local FLAGS_completed_colorId = "10"

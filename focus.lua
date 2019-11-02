@@ -35,7 +35,7 @@ hs.hotkey.bind(hyper, 'R', function ()
 end)
 
 hs.hotkey.bind(hyper, 'S', function ()
-  hs.application.launchOrFocus('Slack')
+  hs.application.launchOrFocus('Spotify')
 end)
 
 hs.hotkey.bind(hyper, 'T', function ()
