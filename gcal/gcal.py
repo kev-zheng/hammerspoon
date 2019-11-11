@@ -36,7 +36,7 @@ def is_event_valid(event):
     return 'dateTime' in event['start']
 
 def get_event_metadata(event, colors):
-    date_obj = datetime.strptime(event['start']['dateTime'], "%Y-%m-%dT%H:%M:%S-04:00")
+    date_obj = datetime.fromisoformat(event['start']['dateTime'])
     date_str = datetime.strftime(date_obj, "%A, %B %d")
 
     title = event['summary']
