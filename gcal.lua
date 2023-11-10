@@ -91,12 +91,16 @@ local function updateEvent(menu, menu_table, event)
         -- reset to original color
         event['checked'] = false
         event['title'] = makeTitle(FLAGS_incomplete_color, event['time'], event['summary'])
-        os.execute(PYTHON_BINARY.." "..cwd.."gcal/gcal.py -u "..event['id'].." "..FLAGS_incomplete_colorId)
+	to_execute = PYTHON_BINARY.." "..cwd.."gcal/gcal.py -u "..event['id'].." "..FLAGS_incomplete_colorId
+	print(to_execute)
+        os.execute(to_execute)
     else
         -- set to completed color
         event['checked'] = true
         event['title'] = makeTitle(FLAGS_completed_color, event['time'], event['summary'])
-        os.execute(PYTHON_BINARY.." "..cwd.."gcal/gcal.py -u "..event['id'].." "..FLAGS_completed_colorId)
+	to_execute = PYTHON_BINARY.." "..cwd.."gcal/gcal.py -u "..event['id'].." "..FLAGS_completed_colorId
+	print(to_execute)
+        os.execute(to_execute)
         -- set color to something good
     end
     refreshMenuTitle(menu, menu_table)

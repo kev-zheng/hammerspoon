@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 from __future__ import print_function
 import httplib2
 import os

@@ -7,7 +7,7 @@ Set application bindings here!
 ]]--
 
 hs.hotkey.bind(hyper, "C", function ()
-  hs.application.launchOrFocus('Google Chrome')
+  hs.application.launchOrFocus('Google Chrome Beta')
 end)
 
 hs.hotkey.bind(hyper, 'E', function ()
