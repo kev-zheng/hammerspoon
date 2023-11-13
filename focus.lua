@@ -51,7 +51,7 @@ hs.hotkey.bind(hyper, 'H', function()
 end)
 
 hs.hotkey.bind(hyper,  "space", function()
-  hs.application.launchOrFocus('Terminal')
+  hs.application.launchOrFocus('iTerm')
 end)
 
 
