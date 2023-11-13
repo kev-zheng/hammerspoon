@@ -153,6 +153,7 @@ local function refreshMenu()
         end
     end
     refreshMenuTitle(menu, menu_table)
+    print("refreshed!")
 end
 
 -- First call initializes menu
